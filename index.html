@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ElevateLP — Adaptador de Template</title>
+<style>
+  :root{--bg:#0f0f0f;--s:#1a1a1a;--s2:#222;--b:#2a2a2a;--b2:#333;--t:#f0f0f0;--m:#777;--a:#7c6af7;--a2:#9d8fff;--g:#22c55e;--r:#ef4444}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+  header{border-bottom:1px solid var(--b);padding:16px 32px;display:flex;align-items:center;gap:12px}
+  .logo{width:32px;height:32px;background:var(--a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+  .logo-text{font-weight:600;font-size:16px}
+  .logo-sub{font-size:12px;color:var(--m);margin-left:4px}
+  .container{max-width:900px;margin:0 auto;padding:32px 20px}
+  .card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:24px;margin-bottom:20px}
+  .card-title{font-size:15px;font-weight:600;margin-bottom:4px}
+  .card-sub{font-size:12px;color:var(--m);margin-bottom:18px;line-height:1.6}
+  .card-sub code{background:var(--s2);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--a2)}
+  label{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:7px}
+  input[type=text],textarea,select{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:10px 12px;color:var(--t);font-size:13px;font-family:inherit}
+  input:focus,textarea:focus{outline:none;border-color:var(--a)}
+  textarea{resize:vertical;line-height:1.6}
+  .drop-zone{border:1.5px dashed var(--b2);border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s}
+  .drop-zone:hover,.drop-zone.over{border-color:var(--a);background:rgba(124,106,247,.05)}
+  .drop-zone.loaded{border-color:var(--g);background:rgba(34,197,94,.04);border-style:solid}
+  .drop-icon{font-size:28px;margin-bottom:8px}
+  .drop-title{font-weight:500;font-size:14px;margin-bottom:3px}
+  .drop-sub{font-size:12px;color:var(--m)}
+  .btn{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+  .btn-primary{background:var(--a);color:#fff;width:100%;padding:14px;font-size:15px}
+  .btn-primary:hover{background:var(--a2)}
+  .btn-primary:disabled{opacity:.35;cursor:not-allowed}
+  .btn-outline{background:transparent;border:1px solid var(--b2);color:var(--t)}
+  .btn-outline:hover{background:var(--s2)}
+  .btn-green{background:var(--g);color:#fff;padding:12px 32px;font-size:15px}
+  .btn-green:hover{opacity:.88}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .progress-bar{background:var(--b);border-radius:4px;height:5px;overflow:hidden;margin:14px 0 6px}
+  .progress-fill{height:100%;background:var(--a);border-radius:4px;transition:width .4s}
+  .status-msg{font-size:12px;color:var(--m)}
+  .result-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:28px;text-align:center;margin-top:20px}
+  .result-title{font-size:20px;font-weight:600;margin-bottom:8px}
+  .result-sub{font-size:13px;color:var(--m);margin-bottom:24px;line-height:1.6}
+  .stat-row{display:flex;gap:12px;margin-bottom:20px}
+  .stat{background:var(--s2);border-radius:8px;padding:12px 16px;flex:1;text-align:center}
+  .stat-val{font-size:24px;font-weight:600;color:var(--g)}
+  .stat-label{font-size:11px;color:var(--m);margin-top:2px}
+  .alert{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+  .alert.show{display:block}
+  .alert-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+  .hidden{display:none}
+  .steps{display:flex;align-items:center;margin-bottom:28px;gap:0}
+  .step-item{display:flex;align-items:center;gap:8px}
+  .step-num{width:26px;height:26px;border-radius:50%;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--m);transition:all .2s}
+  .step-num.active{background:var(--a);border-color:var(--a);color:#fff}
+  .step-num.done{background:var(--g);border-color:var(--g);color:#fff}
+  .step-label{font-size:13px;color:var(--m)}
+  .step-label.active{color:var(--t);font-weight:500}
+  .step-sep{flex:1;border-top:1px solid var(--b2);margin:0 12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">E</div>
+  <span class="logo-text">ElevateLP</span>
+  <span class="logo-sub">Adaptador de Template Elementor</span>
+</header>
+<div class="container">
+
+  <div class="steps">
+    <div class="step-item"><div class="step-num active" id="sn1">1</div><div class="step-label active" id="sl1">Dados</div></div>
+    <div class="step-sep"></div>
+    <div class="step-item"><div class="step-num" id="sn2">2</div><div class="step-label" id="sl2">Processando</div></div>
+    <div class="step-sep"></div>
+    <div class="step-item"><div class="step-num" id="sn3">3</div><div class="step-label" id="sl3">Pronto</div></div>
+  </div>
+
+  <div id="phase1">
+    <div class="card">
+      <div class="card-title">1. JSON do Elementor</div>
+      <div class="card-sub">No Elementor: clique nos <code>≡ três tracinhos</code> → <code>Exportar Template</code> → salve o <code>.json</code></div>
+      <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+        <div class="drop-icon" id="dropIcon">📄</div>
+        <div class="drop-title" id="dropTitle">Arraste o .json aqui</div>
+        <div class="drop-sub" id="dropSub">ou clique para selecionar</div>
+      </div>
+      <input type="file" id="fileInput" accept=".json" style="display:none" onchange="handleFile(this.files[0])">
+    </div>
+
+    <div class="card">
+      <div class="card-title">2. Link da página do template</div>
+      <div class="card-sub">Cole a URL onde o template está hospedado (preview do Envato, página de demo, ou sua instalação WordPress)</div>
+      <label>URL da página</label>
+      <input type="text" id="pageUrl" placeholder="https://seusite.com/pagina-demo" />
+    </div>
+
+    <div class="card">
+      <div class="card-title">3. Briefing do cliente</div>
+      <div class="card-sub">Cole as respostas do briefing. Quanto mais completo, melhor a copy.</div>
+      <div class="grid2" style="margin-bottom:14px">
+        <div>
+          <label>Nome / nicho do cliente</label>
+          <input type="text" id="clienteNome" placeholder="Ex: ZipZap CRM — automação WhatsApp" />
+        </div>
+        <div>
+          <label>Tom da comunicação</label>
+          <select id="tomSelect">
+            <option value="profissional e direto">Profissional e direto</option>
+            <option value="descontraído e próximo">Descontraído e próximo</option>
+            <option value="inspirador e motivacional">Inspirador e motivacional</option>
+            <option value="urgente e persuasivo">Urgente e persuasivo</option>
+            <option value="premium e sofisticado">Premium e sofisticado</option>
+          </select>
+        </div>
+      </div>
+      <label>Briefing completo</label>
+      <textarea id="briefingTexto" rows="10" placeholder="Nicho: ...&#10;Público-alvo: ...&#10;Objetivo da landing page: ...&#10;Oferta principal: ...&#10;Benefícios: ...&#10;Transformação: ...&#10;Garantia: ..."></textarea>
+    </div>
+
+    <div class="alert alert-err" id="alertErr"></div>
+    <button class="btn btn-primary" onclick="processar()">Adaptar template completo →</button>
+  </div>
+
+  <div id="phase2" class="hidden">
+    <div class="card">
+      <div class="card-title">Processando com IA...</div>
+      <div class="status-msg" id="statusMsg">Iniciando...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+      <div style="font-size:12px;color:var(--m);margin-top:8px">Isso leva entre 15 e 60 segundos dependendo do template.</div>
+    </div>
+  </div>
+
+  <div id="phase3" class="hidden">
+    <div class="result-box">
+      <div style="font-size:40px;margin-bottom:12px">🎉</div>
+      <div class="result-title">Template adaptado!</div>
+      <div class="result-sub" id="resultSub"></div>
+      <div class="stat-row" style="justify-content:center;max-width:400px;margin:0 auto 20px">
+        <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-label">textos encontrados</div></div>
+        <div class="stat"><div class="stat-val" id="statApplied">0</div><div class="stat-label">adaptados</div></div>
+      </div>
+      <button class="btn btn-green" onclick="baixar()">⬇ Baixar JSON adaptado</button>
+    </div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn btn-outline" onclick="reiniciar()">← Adaptar outro cliente</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let jsonData = null;
+let adaptedJson = null;
+let clienteNomeVal = '';
+
+const dz = document.getElementById('dropZone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
+
+function handleFile(file) {
+  if (!file.name.endsWith('.json')) { showErr('Selecione um arquivo .json exportado do Elementor.'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      jsonData = JSON.parse(e.target.result);
+      dz.classList.add('loaded');
+      document.getElementById('dropIcon').textContent = '✅';
+      document.getElementById('dropTitle').innerHTML = '<span style="color:var(--g)">' + file.name + '</span>';
+      document.getElementById('dropSub').textContent = 'Arquivo carregado';
+    } catch(e) { showErr('JSON inválido. Exporte novamente pelo Elementor.'); }
+  };
+  reader.readAsText(file);
+}
+
+async function processar() {
+  if (!jsonData) { showErr('Faça upload do JSON do Elementor primeiro.'); return; }
+  const pageUrl = document.getElementById('pageUrl').value.trim();
+  const briefing = document.getElementById('briefingTexto').value.trim();
+  const cliente = document.getElementById('clienteNome').value.trim();
+  const tom = document.getElementById('tomSelect').value;
+  if (!briefing) { showErr('Cole o briefing do cliente.'); return; }
+
+  clienteNomeVal = cliente;
+  document.getElementById('phase1').classList.add('hidden');
+  document.getElementById('phase2').classList.remove('hidden');
+  setStep(2);
+
+  const msgs = [
+    'Acessando a página do template...',
+    'Extraindo textos do JSON...',
+    'Gerando copy com IA...',
+    'Aplicando textos adaptados...',
+    'Finalizando...'
+  ];
+  let mi = 0;
+  const interval = setInterval(() => {
+    if (mi < msgs.length) {
+      document.getElementById('statusMsg').textContent = msgs[mi++];
+      document.getElementById('progressFill').style.width = (10 + mi * 18) + '%';
+    }
+  }, 4000);
+
+  try {
+    const res = await fetch('/process', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pageUrl: pageUrl || '',
+        jsonData,
+        briefing: `Tom: ${tom}\n\n${briefing}`,
+        clientName: cliente
+      })
+    });
+    const data = await res.json();
+    clearInterval(interval);
+
+    if (!data.success) throw new Error(data.error);
+
+    adaptedJson = data.json;
+    document.getElementById('statTotal').textContent = data.total;
+    document.getElementById('statApplied').textContent = data.applied;
+    document.getElementById('resultSub').innerHTML = '<strong>' + data.total + ' textos</strong> encontrados, <strong>' + data.applied + '</strong> adaptados para <strong>' + (cliente || 'o cliente') + '</strong>.';
+    document.getElementById('progressFill').style.width = '100%';
+
+    document.getElementById('phase2').classList.add('hidden');
+    document.getElementById('phase3').classList.remove('hidden');
+    setStep(3);
+  } catch(e) {
+    clearInterval(interval);
+    document.getElementById('phase2').classList.add('hidden');
+    document.getElementById('phase1').classList.remove('hidden');
+    setStep(1);
+    showErr('Erro: ' + e.message);
+  }
+}
+
+function baixar() {
+  const blob = new Blob([JSON.stringify(adaptedJson, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'elevate-' + (clienteNomeVal || 'cliente').replace(/\s+/g, '-').toLowerCase() + '-adaptado.json';
+  a.click();
+}
+
+function reiniciar() {
+  jsonData = null; adaptedJson = null;
+  document.getElementById('phase1').classList.remove('hidden');
+  document.getElementById('phase2').classList.add('hidden');
+  document.getElementById('phase3').classList.add('hidden');
+  dz.classList.remove('loaded');
+  document.getElementById('dropIcon').textContent = '📄';
+  document.getElementById('dropTitle').textContent = 'Arraste o .json aqui';
+  document.getElementById('dropSub').textContent = 'ou clique para selecionar';
+  document.getElementById('briefingTexto').value = '';
+  document.getElementById('clienteNome').value = '';
+  document.getElementById('pageUrl').value = '';
+  document.getElementById('fileInput').value = '';
+  document.getElementById('progressFill').style.width = '10%';
+  setStep(1);
+}
+
+function setStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const num = document.getElementById('sn' + i), lbl = document.getElementById('sl' + i);
+    if (i < n) { num.classList.add('done'); num.classList.remove('active'); num.textContent = '✓'; lbl.classList.remove('active'); }
+    else if (i === n) { num.classList.add('active'); num.classList.remove('done'); num.textContent = i; lbl.classList.add('active'); }
+    else { num.classList.remove('active','done'); num.textContent = i; lbl.classList.remove('active'); }
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('alertErr');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+}
+</script>
+</body>
+</html>

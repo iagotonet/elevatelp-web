@@ -5,59 +5,75 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ElevateLP — Adaptador de Template</title>
 <style>
-  :root{--bg:#0f0f0f;--s:#1a1a1a;--s2:#222;--b:#2a2a2a;--b2:#333;--t:#f0f0f0;--m:#777;--a:#7c6af7;--a2:#9d8fff;--g:#22c55e;--r:#ef4444}
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
-  header{border-bottom:1px solid var(--b);padding:16px 32px;display:flex;align-items:center;gap:12px}
-  .logo{width:32px;height:32px;background:var(--a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
-  .logo-text{font-weight:600;font-size:16px}
-  .logo-sub{font-size:12px;color:var(--m);margin-left:4px}
-  .container{max-width:900px;margin:0 auto;padding:32px 20px}
-  .card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:24px;margin-bottom:20px}
-  .card-title{font-size:15px;font-weight:600;margin-bottom:4px}
-  .card-sub{font-size:12px;color:var(--m);margin-bottom:18px;line-height:1.6}
-  .card-sub code{background:var(--s2);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--a2)}
-  label{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:7px}
-  input[type=text],textarea,select{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:10px 12px;color:var(--t);font-size:13px;font-family:inherit}
-  input:focus,textarea:focus{outline:none;border-color:var(--a)}
-  textarea{resize:vertical;line-height:1.6}
-  .drop-zone{border:1.5px dashed var(--b2);border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s}
-  .drop-zone:hover,.drop-zone.over{border-color:var(--a);background:rgba(124,106,247,.05)}
-  .drop-zone.loaded{border-color:var(--g);background:rgba(34,197,94,.04);border-style:solid}
-  .drop-icon{font-size:28px;margin-bottom:8px}
-  .drop-title{font-weight:500;font-size:14px;margin-bottom:3px}
-  .drop-sub{font-size:12px;color:var(--m)}
-  .btn{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
-  .btn-primary{background:var(--a);color:#fff;width:100%;padding:14px;font-size:15px}
-  .btn-primary:hover{background:var(--a2)}
-  .btn-primary:disabled{opacity:.35;cursor:not-allowed}
-  .btn-outline{background:transparent;border:1px solid var(--b2);color:var(--t)}
-  .btn-outline:hover{background:var(--s2)}
-  .btn-green{background:var(--g);color:#fff;padding:12px 32px;font-size:15px}
-  .btn-green:hover{opacity:.88}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .progress-bar{background:var(--b);border-radius:4px;height:5px;overflow:hidden;margin:14px 0 6px}
-  .progress-fill{height:100%;background:var(--a);border-radius:4px;transition:width .4s}
-  .status-msg{font-size:12px;color:var(--m)}
-  .result-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:28px;text-align:center;margin-top:20px}
-  .result-title{font-size:20px;font-weight:600;margin-bottom:8px}
-  .result-sub{font-size:13px;color:var(--m);margin-bottom:24px;line-height:1.6}
-  .stat-row{display:flex;gap:12px;margin-bottom:20px}
-  .stat{background:var(--s2);border-radius:8px;padding:12px 16px;flex:1;text-align:center}
-  .stat-val{font-size:24px;font-weight:600;color:var(--g)}
-  .stat-label{font-size:11px;color:var(--m);margin-top:2px}
-  .alert{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
-  .alert.show{display:block}
-  .alert-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
-  .hidden{display:none}
-  .steps{display:flex;align-items:center;margin-bottom:28px;gap:0}
-  .step-item{display:flex;align-items:center;gap:8px}
-  .step-num{width:26px;height:26px;border-radius:50%;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--m);transition:all .2s}
-  .step-num.active{background:var(--a);border-color:var(--a);color:#fff}
-  .step-num.done{background:var(--g);border-color:var(--g);color:#fff}
-  .step-label{font-size:13px;color:var(--m)}
-  .step-label.active{color:var(--t);font-weight:500}
-  .step-sep{flex:1;border-top:1px solid var(--b2);margin:0 12px}
+:root{--bg:#0f0f0f;--s:#1a1a1a;--s2:#222;--b:#2a2a2a;--b2:#333;--t:#f0f0f0;--m:#777;--a:#7c6af7;--a2:#9d8fff;--g:#22c55e;--r:#ef4444;--amber:#f59e0b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;min-height:100vh}
+header{border-bottom:1px solid var(--b);padding:14px 28px;display:flex;align-items:center;gap:12px}
+.logo{width:30px;height:30px;background:var(--a);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff}
+.logo-text{font-weight:600;font-size:15px}
+.logo-sub{font-size:12px;color:var(--m);margin-left:4px}
+.tabs{display:flex;border-bottom:1px solid var(--b);background:var(--s)}
+.tab{padding:12px 24px;cursor:pointer;font-size:13px;color:var(--m);border-bottom:2px solid transparent;transition:all .15s}
+.tab.active{color:var(--t);border-bottom-color:var(--a);font-weight:500}
+.tab-content{display:none}.tab-content.active{display:block}
+.container{max-width:940px;margin:0 auto;padding:28px 20px}
+.card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:22px;margin-bottom:18px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.card-sub{font-size:12px;color:var(--m);margin-bottom:18px;line-height:1.6}
+.card-sub code{background:var(--s2);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--a2)}
+label{font-size:11px;font-weight:600;color:var(--m);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:7px}
+input[type=text],textarea,select{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:10px 12px;color:var(--t);font-size:13px;font-family:inherit}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--a)}
+textarea{resize:vertical;line-height:1.6}
+.drop-zone{border:1.5px dashed var(--b2);border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s}
+.drop-zone:hover,.drop-zone.over{border-color:var(--a);background:rgba(124,106,247,.05)}
+.drop-zone.loaded{border-color:var(--g);background:rgba(34,197,94,.04);border-style:solid}
+.drop-icon{font-size:28px;margin-bottom:8px}
+.drop-title{font-weight:500;font-size:14px;margin-bottom:3px}
+.drop-sub{font-size:12px;color:var(--m)}
+.btn{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
+.btn-primary{background:var(--a);color:#fff;width:100%;padding:14px;font-size:15px}
+.btn-primary:hover{background:var(--a2)}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--b2);color:var(--t)}
+.btn-outline:hover{background:var(--s2)}
+.btn-green{background:var(--g);color:#fff;padding:12px 32px;font-size:15px}
+.btn-green:hover{opacity:.88}
+.btn-amber{background:var(--amber);color:#000;padding:12px 32px;font-size:15px}
+.btn-amber:hover{opacity:.88}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.progress-bar{background:var(--b);border-radius:4px;height:5px;overflow:hidden;margin:14px 0 6px}
+.progress-fill{height:100%;background:var(--a);border-radius:4px;transition:width .4s}
+.status-msg{font-size:12px;color:var(--m)}
+.result-box{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:12px;padding:28px;text-align:center;margin-bottom:18px}
+.result-title{font-size:20px;font-weight:600;margin-bottom:8px}
+.result-sub{font-size:13px;color:var(--m);margin-bottom:20px;line-height:1.6}
+.stat-row{display:flex;gap:12px;margin-bottom:20px;justify-content:center;max-width:400px;margin:0 auto 20px}
+.stat{background:var(--s2);border-radius:8px;padding:12px 16px;flex:1;text-align:center}
+.stat-val{font-size:24px;font-weight:600;color:var(--g)}
+.stat-label{font-size:11px;color:var(--m);margin-top:2px}
+.alert{border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:14px;display:none}
+.alert.show{display:block}
+.alert-err{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5}
+.hidden{display:none}
+.steps{display:flex;align-items:center;margin-bottom:28px}
+.step-item{display:flex;align-items:center;gap:8px}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--s2);border:1px solid var(--b2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--m);transition:all .2s}
+.step-num.active{background:var(--a);border-color:var(--a);color:#fff}
+.step-num.done{background:var(--g);border-color:var(--g);color:#fff}
+.step-label{font-size:13px;color:var(--m)}
+.step-label.active{color:var(--t);font-weight:500}
+.step-sep{flex:1;border-top:1px solid var(--b2);margin:0 12px}
+.fix-item{background:var(--s2);border:1px solid var(--b);border-radius:8px;padding:14px;margin-bottom:10px}
+.fix-label{font-size:11px;color:var(--m);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.fix-original{font-size:12px;color:#888;margin-bottom:8px}
+.fix-corrected{font-size:13px;color:var(--t);font-weight:500}
+.fix-reason{font-size:11px;color:var(--m);margin-top:4px;font-style:italic}
+.copy-btn{font-size:11px;padding:4px 8px;border-radius:4px;background:var(--s);border:1px solid var(--b2);color:var(--m);cursor:pointer;margin-top:6px}
+.copy-btn:hover{color:var(--t);border-color:var(--t)}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:500;margin-bottom:8px}
+.badge-fix{background:rgba(245,158,11,.15);color:var(--amber)}
+.badge-new{background:rgba(124,106,247,.15);color:var(--a2)}
 </style>
 </head>
 <body>
@@ -66,6 +82,14 @@
   <span class="logo-text">ElevateLP</span>
   <span class="logo-sub">Adaptador de Template Elementor</span>
 </header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('adaptar')">Adaptar Template</div>
+  <div class="tab" onclick="switchTab('corrigir')">Corrigir Erros</div>
+</div>
+
+<!-- TAB: ADAPTAR -->
+<div class="tab-content active" id="tab-adaptar">
 <div class="container">
 
   <div class="steps">
@@ -79,7 +103,7 @@
   <div id="phase1">
     <div class="card">
       <div class="card-title">1. JSON do Elementor</div>
-      <div class="card-sub">No Elementor: clique nos <code>≡ três tracinhos</code> → <code>Exportar Template</code> → salve o <code>.json</code></div>
+      <div class="card-sub">No Elementor: <code>≡ três tracinhos</code> → <code>Exportar Template</code> → salve o <code>.json</code></div>
       <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
         <div class="drop-icon" id="dropIcon">📄</div>
         <div class="drop-title" id="dropTitle">Arraste o .json aqui</div>
@@ -89,9 +113,8 @@
     </div>
 
     <div class="card">
-      <div class="card-title">2. Link da página do template</div>
-      <div class="card-sub">Cole a URL onde o template está hospedado (preview do Envato, página de demo, ou sua instalação WordPress)</div>
-      <label>URL da página</label>
+      <div class="card-title">2. Link da página do template (opcional)</div>
+      <div class="card-sub">Se o template estiver hospedado, cole a URL. Ajuda a capturar textos extras.</div>
       <input type="text" id="pageUrl" placeholder="https://seusite.com/pagina-demo" />
     </div>
 
@@ -115,7 +138,7 @@
         </div>
       </div>
       <label>Briefing completo</label>
-      <textarea id="briefingTexto" rows="10" placeholder="Nicho: ...&#10;Público-alvo: ...&#10;Objetivo da landing page: ...&#10;Oferta principal: ...&#10;Benefícios: ...&#10;Transformação: ...&#10;Garantia: ..."></textarea>
+      <textarea id="briefingTexto" rows="9" placeholder="Nicho: ...&#10;Público-alvo: ...&#10;Objetivo da landing page: ...&#10;Oferta principal: ...&#10;Benefícios: ...&#10;Transformação: ...&#10;Garantia: ..."></textarea>
     </div>
 
     <div class="alert alert-err" id="alertErr"></div>
@@ -127,40 +150,91 @@
       <div class="card-title">Processando com IA...</div>
       <div class="status-msg" id="statusMsg">Iniciando...</div>
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
-      <div style="font-size:12px;color:var(--m);margin-top:8px">Isso leva entre 15 e 60 segundos dependendo do template.</div>
+      <div style="font-size:12px;color:var(--m);margin-top:8px">Isso leva entre 15 e 60 segundos.</div>
     </div>
   </div>
 
   <div id="phase3" class="hidden">
     <div class="result-box">
-      <div style="font-size:40px;margin-bottom:12px">🎉</div>
+      <div style="font-size:36px;margin-bottom:12px">🎉</div>
       <div class="result-title">Template adaptado!</div>
       <div class="result-sub" id="resultSub"></div>
-      <div class="stat-row" style="justify-content:center;max-width:400px;margin:0 auto 20px">
+      <div class="stat-row">
         <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-label">textos encontrados</div></div>
         <div class="stat"><div class="stat-val" id="statApplied">0</div><div class="stat-label">adaptados</div></div>
       </div>
       <button class="btn btn-green" onclick="baixar()">⬇ Baixar JSON adaptado</button>
     </div>
-    <div style="text-align:center;margin-top:16px">
+
+    <div class="card" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)">
+      <div class="card-title" style="color:var(--amber)">Algo ficou errado?</div>
+      <div class="card-sub">Se algum texto não foi adaptado corretamente, vá para a aba <strong>Corrigir Erros</strong> e descreva o problema. O app gera os textos corrigidos automaticamente.</div>
+      <button class="btn btn-amber" onclick="irParaCorrigir()" style="padding:10px 20px;font-size:13px">Corrigir erros →</button>
+    </div>
+
+    <div style="text-align:center;margin-top:14px">
       <button class="btn btn-outline" onclick="reiniciar()">← Adaptar outro cliente</button>
     </div>
   </div>
 
 </div>
+</div>
+
+<!-- TAB: CORRIGIR -->
+<div class="tab-content" id="tab-corrigir">
+<div class="container">
+
+  <div class="card">
+    <div class="card-title">Corrigir erros no template adaptado</div>
+    <div class="card-sub">Descreva o que ficou errado — pode ser texto em inglês, tamanho errado, texto fora do contexto, campo não adaptado, etc. Pode também fazer upload de prints.</div>
+
+    <div style="margin-bottom:16px">
+      <label>Descrição do problema</label>
+      <textarea id="errorDesc" rows="5" placeholder="Exemplos:&#10;- O texto 'Lorem ipsum...' na primeira dobra não foi adaptado&#10;- O título ficou muito grande, o original tinha 3 palavras&#10;- Os cards de serviços ainda estão em inglês (Get a Quote, Customize & Apply)&#10;- O depoimento ficou genérico, não menciona o produto do cliente"></textarea>
+    </div>
+
+    <div id="fixBriefingArea">
+      <label>Briefing do cliente <span style="color:var(--m);font-size:10px">(preenche automaticamente se já processou)</span></label>
+      <textarea id="fixBriefing" rows="4" placeholder="Cole o briefing do cliente aqui caso não tenha processado nada ainda..."></textarea>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Nome do cliente</label>
+      <input type="text" id="fixClientName" placeholder="Ex: ZipZap CRM" />
+    </div>
+  </div>
+
+  <div class="alert alert-err" id="alertFix"></div>
+  <button class="btn btn-primary" onclick="corrigir()">Gerar correções com IA →</button>
+
+  <div id="fixResults" class="hidden" style="margin-top:20px">
+    <div class="card">
+      <div class="card-title" style="margin-bottom:16px">Correções geradas</div>
+      <div id="fixList"></div>
+    </div>
+    <div id="fixDownload" class="hidden" style="text-align:center;margin-top:14px">
+      <button class="btn btn-green" onclick="baixarCorrigido()">⬇ Baixar JSON corrigido</button>
+    </div>
+  </div>
+
+</div>
+</div>
 
 <script>
 let jsonData = null;
 let adaptedJson = null;
+let textMap = null;
+let fixedJson = null;
 let clienteNomeVal = '';
 
+// Drag and drop
 const dz = document.getElementById('dropZone');
 dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
 dz.addEventListener('dragleave', () => dz.classList.remove('over'));
 dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]); });
 
 function handleFile(file) {
-  if (!file.name.endsWith('.json')) { showErr('Selecione um arquivo .json exportado do Elementor.'); return; }
+  if (!file.name.endsWith('.json')) { showErr('alertErr', 'Selecione um arquivo .json exportado do Elementor.'); return; }
   const reader = new FileReader();
   reader.onload = e => {
     try {
@@ -169,31 +243,41 @@ function handleFile(file) {
       document.getElementById('dropIcon').textContent = '✅';
       document.getElementById('dropTitle').innerHTML = '<span style="color:var(--g)">' + file.name + '</span>';
       document.getElementById('dropSub').textContent = 'Arquivo carregado';
-    } catch(e) { showErr('JSON inválido. Exporte novamente pelo Elementor.'); }
+    } catch(e) { showErr('alertErr', 'JSON inválido. Exporte novamente pelo Elementor.'); }
   };
   reader.readAsText(file);
 }
 
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', ['adaptar','corrigir'][i] === tab));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function irParaCorrigir() {
+  // Preencher automaticamente o briefing e nome
+  if (document.getElementById('briefingTexto').value) {
+    document.getElementById('fixBriefing').value = document.getElementById('briefingTexto').value;
+  }
+  if (clienteNomeVal) {
+    document.getElementById('fixClientName').value = clienteNomeVal;
+  }
+  switchTab('corrigir');
+}
+
 async function processar() {
-  if (!jsonData) { showErr('Faça upload do JSON do Elementor primeiro.'); return; }
-  const pageUrl = document.getElementById('pageUrl').value.trim();
+  if (!jsonData) { showErr('alertErr', 'Faça upload do JSON do Elementor primeiro.'); return; }
   const briefing = document.getElementById('briefingTexto').value.trim();
   const cliente = document.getElementById('clienteNome').value.trim();
   const tom = document.getElementById('tomSelect').value;
-  if (!briefing) { showErr('Cole o briefing do cliente.'); return; }
+  if (!briefing) { showErr('alertErr', 'Cole o briefing do cliente.'); return; }
 
   clienteNomeVal = cliente;
   document.getElementById('phase1').classList.add('hidden');
   document.getElementById('phase2').classList.remove('hidden');
   setStep(2);
 
-  const msgs = [
-    'Acessando a página do template...',
-    'Extraindo textos do JSON...',
-    'Gerando copy com IA...',
-    'Aplicando textos adaptados...',
-    'Finalizando...'
-  ];
+  const msgs = ['Acessando a página...', 'Extraindo textos do JSON...', 'Gerando copy com IA...', 'Aplicando textos...', 'Finalizando...'];
   let mi = 0;
   const interval = setInterval(() => {
     if (mi < msgs.length) {
@@ -207,23 +291,22 @@ async function processar() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        pageUrl: pageUrl || '',
+        pageUrl: document.getElementById('pageUrl').value.trim() || '',
         jsonData,
-        briefing: `Tom: ${tom}\n\n${briefing}`,
+        briefing: 'Tom: ' + tom + '\n\n' + briefing,
         clientName: cliente
       })
     });
     const data = await res.json();
     clearInterval(interval);
-
     if (!data.success) throw new Error(data.error);
 
     adaptedJson = data.json;
+    textMap = data.textMap;
     document.getElementById('statTotal').textContent = data.total;
     document.getElementById('statApplied').textContent = data.applied;
     document.getElementById('resultSub').innerHTML = '<strong>' + data.total + ' textos</strong> encontrados, <strong>' + data.applied + '</strong> adaptados para <strong>' + (cliente || 'o cliente') + '</strong>.';
     document.getElementById('progressFill').style.width = '100%';
-
     document.getElementById('phase2').classList.add('hidden');
     document.getElementById('phase3').classList.remove('hidden');
     setStep(3);
@@ -232,8 +315,94 @@ async function processar() {
     document.getElementById('phase2').classList.add('hidden');
     document.getElementById('phase1').classList.remove('hidden');
     setStep(1);
-    showErr('Erro: ' + e.message);
+    showErr('alertErr', 'Erro: ' + e.message);
   }
+}
+
+async function corrigir() {
+  const errorDesc = document.getElementById('errorDesc').value.trim();
+  const briefing = document.getElementById('fixBriefing').value.trim() || document.getElementById('briefingTexto').value.trim();
+  const cliente = document.getElementById('fixClientName').value.trim() || clienteNomeVal;
+
+  if (!errorDesc) { showErr('alertFix', 'Descreva o problema primeiro.'); return; }
+  if (!briefing) { showErr('alertFix', 'Cole o briefing do cliente.'); return; }
+
+  document.querySelector('#tab-corrigir .btn-primary').disabled = true;
+  document.querySelector('#tab-corrigir .btn-primary').textContent = 'Gerando correções...';
+
+  try {
+    const res = await fetch('/fix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        errorDescription: errorDesc,
+        briefing,
+        clientName: cliente,
+        textMap: textMap || null,
+        jsonData: adaptedJson || jsonData || null
+      })
+    });
+    const data = await res.json();
+    if (!data.success) throw new Error(data.error);
+
+    if (data.fixedJson) fixedJson = data.fixedJson;
+
+    const fixList = document.getElementById('fixList');
+    fixList.innerHTML = '';
+
+    if (data.fixes && data.fixes.fixes && data.fixes.fixes.length > 0) {
+      data.fixes.fixes.forEach(fix => {
+        const div = document.createElement('div');
+        div.className = 'fix-item';
+        div.innerHTML = `
+          <span class="badge badge-fix">Correção</span>
+          <div class="fix-label">Original / Errado</div>
+          <div class="fix-original">${fix.original}</div>
+          <div class="fix-label">Corrigido</div>
+          <div class="fix-corrected">${fix.corrected}</div>
+          ${fix.reason ? `<div class="fix-reason">${fix.reason}</div>` : ''}
+          <button class="copy-btn" onclick="copyText('${fix.corrected.replace(/'/g, "\\'")}', this)">Copiar texto</button>
+        `;
+        fixList.appendChild(div);
+      });
+    }
+
+    if (data.fixes && data.fixes.newTexts && data.fixes.newTexts.length > 0) {
+      data.fixes.newTexts.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'fix-item';
+        div.innerHTML = `
+          <span class="badge badge-new">Texto novo</span>
+          <div class="fix-label">Campo</div>
+          <div class="fix-original">${item.description}</div>
+          <div class="fix-label">Texto gerado</div>
+          <div class="fix-corrected">${item.text}</div>
+          <button class="copy-btn" onclick="copyText('${item.text.replace(/'/g, "\\'")}', this)">Copiar texto</button>
+        `;
+        fixList.appendChild(div);
+      });
+    }
+
+    if (fixList.innerHTML === '') {
+      fixList.innerHTML = '<div style="color:var(--m);font-size:13px;text-align:center;padding:20px">Nenhuma correção específica identificada. Tente descrever o problema com mais detalhes.</div>';
+    }
+
+    document.getElementById('fixResults').classList.remove('hidden');
+    if (fixedJson) document.getElementById('fixDownload').classList.remove('hidden');
+
+  } catch(e) {
+    showErr('alertFix', 'Erro: ' + e.message);
+  } finally {
+    document.querySelector('#tab-corrigir .btn-primary').disabled = false;
+    document.querySelector('#tab-corrigir .btn-primary').textContent = 'Gerar correções com IA →';
+  }
+}
+
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar texto', 2000);
+  });
 }
 
 function baixar() {
@@ -244,8 +413,16 @@ function baixar() {
   a.click();
 }
 
+function baixarCorrigido() {
+  const blob = new Blob([JSON.stringify(fixedJson, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'elevate-' + (clienteNomeVal || 'cliente').replace(/\s+/g, '-').toLowerCase() + '-corrigido.json';
+  a.click();
+}
+
 function reiniciar() {
-  jsonData = null; adaptedJson = null;
+  jsonData = null; adaptedJson = null; textMap = null; fixedJson = null;
   document.getElementById('phase1').classList.remove('hidden');
   document.getElementById('phase2').classList.add('hidden');
   document.getElementById('phase3').classList.add('hidden');
@@ -270,8 +447,8 @@ function setStep(n) {
   }
 }
 
-function showErr(msg) {
-  const el = document.getElementById('alertErr');
+function showErr(id, msg) {
+  const el = document.getElementById(id);
   el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), 5000);
 }

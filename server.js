@@ -39,34 +39,66 @@ function extractPageTexts(html) {
       texts.push(text);
     }
   }
-  return [...new Set(texts)].filter(t => t.split(' ').length >= 1);
+  return [...new Set(texts)];
 }
 
-// Padroes de campos que SAO configuracao (nao texto)
-const CONFIG_PATTERNS = /(_color|_background|_typography|_font|_size|_weight|_transform|_border|_padding|_margin|_radius|_shadow|_transition|_animation|_position|_align|_justify|_flex|_grid|_display|_width|_height|_image|_icon|_url|_link|_id|_hover|_normal|_tablet|_mobile|_responsive|hover_|_gradient|_overlay|_opacity|_z_index|_gap|_space|gradient_position|background_background|border_border|typography_typography|box_shadow|text_transform|font_family|font_size|font_weight|line_height|letter_spacing)/i;
-
-// Valores que claramente nao sao copy
-const JUNK_PATTERNS = /^(yes|no|true|false|none|auto|inherit|initial|center|left|right|top|bottom|middle|full|stretch|h[1-6]|classic|gradient|solid|custom|uppercase|lowercase|normal|bold|italic|image|recent|fadeIn|fadeInUp|fast|slow|shrink|text_center|text_left|text_right|min-height|contain|cover|no-repeat|transform|stacked|framed|inline|block|flex|grid|absolute|relative|fixed|static|hidden|visible|pointer|grab|default|style-\d+|layout-\d+|ekit-[a-z-]+|elementskit-[a-z-]+)$/i;
-
-function isContentField(fieldName) {
-  if (CONFIG_PATTERNS.test(fieldName)) return false;
-  return true;
+// Campos que SÃO configuração (não texto) - apenas sufixos/prefixos técnicos
+function isConfigField(field) {
+  const f = field.toLowerCase();
+  // Campos que terminam em padrões técnicos
+  if (/_color$|_colour$/.test(f)) return true;
+  if (/_background$|_bg$/.test(f)) return true;
+  if (/_font_family$|_font_size$|_font_weight$/.test(f)) return true;
+  if (/_line_height$|_letter_spacing$/.test(f)) return true;
+  if (/_border_type$|_border_width$|_border_radius$/.test(f)) return true;
+  if (/_padding$|_margin$/.test(f)) return true;
+  if (/_width$|_height$|_min_height$|_max_width$/.test(f)) return true;
+  if (/_opacity$|_z_index$/.test(f)) return true;
+  if (/_shadow$|_box_shadow$/.test(f)) return true;
+  if (/_animation$|_transition$/.test(f)) return true;
+  if (/_gap$|_spacing$/.test(f)) return true;
+  // Campos que contêm padrões CSS no meio
+  if (f.includes('_background_background') || f.includes('background_color')) return true;
+  if (f.includes('_typography_typography') || f.includes('typography_font')) return true;
+  if (f.includes('border_border') || f.includes('box_shadow_box_shadow')) return true;
+  if (f.includes('gradient_position')) return true;
+  // Campos claramente não-texto
+  if (f.endsWith('_id') || f === '_id') return true;
+  if (f.endsWith('_url') || f.endsWith('_link')) return true;
+  if (f.endsWith('_image') || f.endsWith('_icon') || f.endsWith('_photo') || f.endsWith('_logo')) return true;
+  // Campos de alinhamento/layout
+  if (/_(align|alignment|justify|position|layout|display)(_|$)/.test(f)) return true;
+  if (/_tablet$|_mobile$|_responsive$/.test(f)) return true;
+  return false;
 }
 
+// Verifica se o valor é texto real de conteúdo
 function isRealText(val) {
   const v = (val || '').trim();
   if (!v || v.length < 2) return false;
-  if (JUNK_PATTERNS.test(v)) return false;
+  // Valores técnicos conhecidos
+  const junk = new Set(['yes','no','true','false','none','auto','inherit','initial',
+    'center','left','right','top','bottom','middle','full','stretch','stacked','framed',
+    'h1','h2','h3','h4','h5','h6','classic','gradient','solid','dashed','dotted','custom',
+    'normal','bold','italic','uppercase','lowercase','image','recent','inline','block',
+    'flex','grid','absolute','relative','fixed','static','hidden','visible',
+    'fadeIn','fadeInUp','fadeInDown','slideIn','fast','slow','shrink',
+    'text_center','text_left','text_right','min-height','contain','cover','no-repeat',
+    'transform','highlight','underline','line-through','overline',
+    'style-1','style-2','style-3','style-4','style-5',
+    'pointer','grab','default','crosshair','move']);
+  if (junk.has(v.toLowerCase())) return false;
+  // Padrões técnicos
   if (/^#[0-9a-fA-F]{3,8}$/.test(v)) return false;
   if (/^https?:\/\//.test(v)) return false;
   if (/^www\./.test(v)) return false;
-  if (/^\d+(\.\d+)?(px|em|rem|%|vh|vw|pt|B|s|ms)?$/.test(v)) return false;
-  if (/^rgba?\(/.test(v)) return false;
-  if (/@/.test(v) && /\./.test(v) && v.length < 100) return false; // emails
-  if (/^[a-f0-9]{6,32}$/.test(v)) return false; // IDs hexadecimais
-  if (/^[a-z0-9_-]+$/.test(v) && v.length < 15 && !v.includes(' ')) return false; // slugs
-  if (/^(\+\d[\d\s-]{6,}|\(\d+\))/.test(v)) return false; // telefones
-  // Deve ter pelo menos 2 caracteres nao-especiais
+  if (/^\d+(\.\d+)?(px|em|rem|%|vh|vw|pt|deg|s|ms|B)?$/.test(v)) return false;
+  if (/^rgba?\(|^hsla?\(/.test(v)) return false;
+  if (/^[a-f0-9]{6,32}$/.test(v)) return false; // hex IDs
+  if (/^[a-z0-9_-]+$/.test(v) && v.length <= 20 && !v.includes(' ')) return false; // slugs/opcoes
+  if (/^\+?\d[\d\s().-]{6,}$/.test(v)) return false; // telefones
+  if (/@[a-z]+\.[a-z]+/.test(v)) return false; // emails
+  // Deve ter pelo menos 2 letras
   const letters = v.replace(/[^a-zA-ZÀ-ÿ]/g, '');
   if (letters.length < 2) return false;
   return true;
@@ -85,10 +117,8 @@ function extractElementorTexts(data) {
       const eid = el.id || '';
       if (!wt || typeof s !== 'object') { if (el.elements) walk(el.elements); continue; }
 
-      // Varrer TODOS os campos do settings
       for (const [field, val] of Object.entries(s)) {
-        // Pular campos de configuracao
-        if (!isContentField(field)) continue;
+        if (isConfigField(field)) continue;
 
         if (typeof val === 'string') {
           const clean = stripHtml(val);
@@ -98,11 +128,10 @@ function extractElementorTexts(data) {
             texts.push({ elId: eid, wt, field, text: clean, rawHtml: val.includes('<'), applyWt: wt });
           }
         } else if (Array.isArray(val)) {
-          // Varrer listas (slides, items, etc)
           val.forEach((item, idx) => {
             if (!item || typeof item !== 'object') return;
             for (const [sf, sv] of Object.entries(item)) {
-              if (!isContentField(sf)) continue;
+              if (isConfigField(sf)) continue;
               const key2 = `${eid}:${field}:${idx}:${sf}`;
               if (seen.has(key2) || typeof sv !== 'string') continue;
               const clean = stripHtml(sv);
@@ -160,10 +189,10 @@ function applyTexts(jsonData, texts, adaptedCopies) {
   return { adapted, count };
 }
 
-function callClaude(system, userMsg) {
+function callClaude(system, userMsg, model) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
+      model: model || 'claude-haiku-4-5-20251001',
       max_tokens: 8000,
       system,
       messages: [{ role: 'user', content: userMsg }]
@@ -221,6 +250,7 @@ const server = http.createServer(async (req, res) => {
     res.end(html); return;
   }
 
+  // Rota principal: processar template
   if (req.method === 'POST' && req.url === '/process') {
     let body = '';
     req.on('data', c => body += c);
@@ -236,9 +266,7 @@ const server = http.createServer(async (req, res) => {
           try {
             const html = await fetchUrl(pageUrl);
             pageTexts = extractPageTexts(html);
-          } catch(e) {
-            console.log('Aviso pagina:', e.message);
-          }
+          } catch(e) { console.log('Aviso pagina:', e.message); }
         }
 
         const parsed = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
@@ -246,18 +274,17 @@ const server = http.createServer(async (req, res) => {
         if (texts.length === 0) throw new Error('Nenhum texto encontrado no JSON');
 
         const pageContext = pageTexts.length > 0
-          ? `\n\nTextos visíveis na página (contexto de layout):\n${pageTexts.slice(0, 30).join('\n')}`
+          ? `\n\nTextos visíveis na página:\n${pageTexts.slice(0, 30).join('\n')}`
           : '';
 
         const system = `Você é um adaptador de copy para landing pages brasileiras.
-
-REGRAS — siga à risca:
+REGRAS:
 1. Responda APENAS com a lista numerada, uma linha por item
-2. Formato obrigatório: "1. texto adaptado"
-3. TAMANHO: mantenha exatamente o range indicado [X-Y palavras] — não ultrapasse nem fique muito abaixo
+2. Formato: "1. texto adaptado" — nada mais
+3. TAMANHO: respeite o range [X-Y palavras] — obrigatório
 4. Português brasileiro
-5. Adapte para o negócio do briefing — não invente serviços que não existem
-6. Zero explicações fora da lista`;
+5. Adapte para o negócio — não invente serviços inexistentes
+6. Sem explicações fora da lista`;
 
         const lines = texts.map((t, i) => {
           const words = t.text.split(/\s+/).filter(w => w).length;
@@ -266,21 +293,101 @@ REGRAS — siga à risca:
           return `${i+1}. [${min}-${max} palavras] ${t.text}`;
         });
 
-        const userMsg = `EMPRESA: ${clientName || 'não informado'}
-
-BRIEFING:
-${briefing}
-${pageContext}
-
-Reescreva:
-${lines.join('\n')}`;
+        const userMsg = `EMPRESA: ${clientName || 'não informado'}\nBRIEFING:\n${briefing}${pageContext}\n\nReescreva:\n${lines.join('\n')}`;
 
         const response = await callClaude(system, userMsg);
         const adaptedCopies = parseNumberedList(response, texts.length);
         const { adapted, count } = applyTexts(parsed, texts, adaptedCopies);
 
+        // Salvar textos para correção posterior
+        const textMap = texts.map((t, i) => ({
+          original: t.text,
+          adapted: adaptedCopies[i] || null,
+          elId: t.elId,
+          field: t.field || null,
+          listKey: t.listKey || null,
+          idx: t.idx !== undefined ? t.idx : null,
+          sub: t.sub || null,
+          wt: t.wt,
+          rawHtml: t.rawHtml || false
+        }));
+
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-        res.end(JSON.stringify({ success: true, total: texts.length, applied: count, json: adapted }));
+        res.end(JSON.stringify({ success: true, total: texts.length, applied: count, json: adapted, textMap }));
+
+      } catch(e) {
+        res.writeHead(500, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // Rota de correção: recebe descrição do erro + briefing e gera textos corrigidos
+  if (req.method === 'POST' && req.url === '/fix') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const { errorDescription, briefing, clientName, textMap, jsonData } = JSON.parse(body);
+        if (!errorDescription) throw new Error('Descrição do erro obrigatória');
+        if (!briefing) throw new Error('Briefing obrigatório');
+
+        const system = `Você é um especialista em copywriting para landing pages brasileiras.
+Analise os erros reportados e gere textos corrigidos.
+Responda em JSON válido com o formato:
+{
+  "fixes": [
+    {"original": "texto original", "corrected": "texto corrigido", "reason": "motivo curto"}
+  ],
+  "newTexts": [
+    {"description": "descrição do campo que faltou", "text": "texto gerado"}
+  ]
+}`;
+
+        const textSample = textMap ? textMap.slice(0, 30).map((t, i) =>
+          `${i+1}. [${t.wt}] Original: "${t.original}" → Adaptado: "${t.adapted || 'NÃO ADAPTADO'}"`
+        ).join('\n') : '';
+
+        const userMsg = `EMPRESA: ${clientName || 'não informado'}
+BRIEFING: ${briefing}
+
+PROBLEMA REPORTADO:
+${errorDescription}
+
+TEXTOS QUE FORAM PROCESSADOS:
+${textSample}
+
+Gere as correções necessárias em JSON.`;
+
+        const response = await callClaude(system, userMsg, 'claude-sonnet-4-20250514');
+
+        let fixes = { fixes: [], newTexts: [] };
+        try {
+          const clean = response.replace(/```json|```/g, '').trim();
+          fixes = JSON.parse(clean);
+        } catch(e) {
+          fixes = { fixes: [], newTexts: [{ description: 'Resposta da IA', text: response }] };
+        }
+
+        // Se tiver o JSON original e textMap, aplicar as correções automaticamente
+        let fixedJson = null;
+        if (jsonData && textMap && fixes.fixes && fixes.fixes.length > 0) {
+          const parsed = typeof jsonData === 'string' ? JSON.parse(jsonData) : jsonData;
+          const texts = textMap.map(t => ({
+            elId: t.elId, field: t.field, listKey: t.listKey,
+            idx: t.idx, sub: t.sub, wt: t.wt, rawHtml: t.rawHtml, text: t.original
+          }));
+          const correctedCopies = textMap.map(t => {
+            const fix = fixes.fixes.find(f => f.original === t.original || f.original === t.adapted);
+            return fix ? fix.corrected : t.adapted;
+          });
+          const result = applyTexts(parsed, texts, correctedCopies);
+          fixedJson = result.adapted;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(JSON.stringify({ success: true, fixes, fixedJson }));
 
       } catch(e) {
         res.writeHead(500, { 'Content-Type': 'application/json' });

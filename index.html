@@ -660,6 +660,17 @@ textarea { resize:vertical; line-height:1.6; }
 .badge-amber { background:rgba(245,166,35,0.08); border:1px solid rgba(245,166,35,0.2); color:var(--amber); }
 .badge-blue { background:rgba(79,142,247,0.08); border:1px solid rgba(79,142,247,0.2); color:var(--blue); }
 .badge-gray { background:var(--surface2); border:1px solid var(--border2); color:var(--t3); }
+.alt-type-btn { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; background:var(--surface2); border:1px solid var(--border2); color:var(--t3); transition:all .15s; font-family:'Inter',sans-serif; }
+.alt-type-btn:hover { border-color:var(--amber); color:var(--amber); }
+.alt-type-btn.active { background:rgba(245,166,35,0.1); border-color:var(--amber); color:var(--amber); }
+.fix-type-btn { padding:8px 16px; border-radius:8px; font-size:13px; font-weight:500; cursor:pointer; background:var(--surface2); border:1px solid var(--border2); color:var(--t3); transition:all .15s; font-family:'Inter',sans-serif; }
+.fix-type-btn:hover { border-color:var(--blue); color:var(--blue); }
+.fix-type-btn.active { background:rgba(79,142,247,0.1); border-color:var(--blue); color:var(--blue); }
+.pendencia-item { background:rgba(249,64,81,0.04); border:1px solid rgba(249,64,81,0.15); border-radius:10px; padding:14px 16px; margin-bottom:10px; }
+.pendencia-tipo { display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:600; padding:2px 8px; border-radius:4px; margin-bottom:8px; background:rgba(249,64,81,0.1); color:var(--red); border:1px solid rgba(249,64,81,0.2); }
+.pendencia-desc { font-size:13px; color:var(--t); font-weight:500; margin-bottom:6px; }
+.pendencia-instrucao { font-size:12px; color:var(--t3); line-height:1.6; }
+.pendencia-onde { font-size:11px; color:var(--t3); margin-top:5px; font-style:italic; }
 
 .hidden { display:none; }
 </style>
@@ -808,8 +819,32 @@ textarea { resize:vertical; line-height:1.6; }
 
   <div class="card">
     <div class="card-header"><div class="card-num fix">1</div><div class="card-title">Descrição do problema</div></div>
-    <div class="card-sub">Descreva o que bugou — texto em inglês, tamanho errado, campo não adaptado, contexto errado...</div>
-    <textarea id="errorDesc" rows="5" placeholder="Exemplos:&#10;— O texto 'Lorem ipsum...' na primeira dobra não foi adaptado&#10;— O título ficou com 15 palavras, o original tinha 3&#10;— Os cards de serviços ainda estão em inglês&#10;— O depoimento ficou genérico"></textarea>
+    <div class="card-sub">Descreva o que bugou ou envie um print da tela — a IA analisa e corrige.</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button class="fix-type-btn active" onclick="setFixType('texto')" id="fixbtn-texto">💬 Texto</button>
+      <button class="fix-type-btn" onclick="setFixType('print')" id="fixbtn-print">🖼️ Print</button>
+    </div>
+
+    <div id="fix-input-texto">
+      <textarea id="errorDesc" rows="5" placeholder="Exemplos:&#10;— O texto Lorem ipsum na primeira dobra não foi adaptado&#10;— O título ficou com 15 palavras, o original tinha 3&#10;— Os cards de serviços ainda estão em inglês&#10;— O depoimento ficou genérico"></textarea>
+    </div>
+
+    <div id="fix-input-print" class="hidden">
+      <div class="drop-zone" id="fixPrintZone" onclick="document.getElementById('fixPrintInput').click()">
+        <div class="drop-icon" id="fixPrintIcon">🖼️</div>
+        <div class="drop-title" id="fixPrintTitle">Arraste o print da página com erro</div>
+        <div class="drop-sub">A IA identifica automaticamente o que está errado</div>
+      </div>
+      <input type="file" id="fixPrintInput" accept="image/*" style="display:none" onchange="handleFixPrint(this.files[0])">
+      <div id="fixPrintPreview" class="hidden" style="margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border2)">
+        <img id="fixPrintImg" style="width:100%;display:block" />
+      </div>
+      <div style="margin-top:12px">
+        <label>Descrição adicional (opcional)</label>
+        <textarea id="fixPrintDesc" rows="2" placeholder="A IA já lê o print, mas você pode adicionar contexto extra..."></textarea>
+      </div>
+    </div>
   </div>
 
   <div class="card">
@@ -867,8 +902,42 @@ textarea { resize:vertical; line-height:1.6; }
 
     <div class="card">
       <div class="card-header"><div class="card-num alt">2</div><div class="card-title">Alterações do cliente</div></div>
-      <div class="card-sub">Cole exatamente como o cliente enviou — WhatsApp, email, texto corrido, lista. Qualquer formato funciona.</div>
-      <textarea id="altTexto" rows="10" placeholder="Exemplos do que o cliente pode mandar:&#10;&#10;&quot;no título principal quero: Conquiste Mais Clientes Hoje&quot;&#10;&quot;o botão tá errado, pode colocar Falar com Consultor?&quot;&#10;&quot;na seção sobre nós, trocar o texto por: Somos especialistas em...&quot;&#10;&quot;onde fala 10 anos de experiência muda para 15 anos&quot;&#10;&quot;o subtítulo da segunda dobra ficou errado, quero: Tecnologia que transforma vendas&quot;&#10;&#10;Pode colar direto do WhatsApp, email ou qualquer documento."></textarea>
+      <div class="card-sub">Escolha como enviar as alterações — texto colado, PDF do cliente ou print da tela.</div>
+
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="alt-type-btn active" onclick="setAltType('texto')" id="btn-texto">💬 Texto</button>
+        <button class="alt-type-btn" onclick="setAltType('pdf')" id="btn-pdf">📄 PDF</button>
+        <button class="alt-type-btn" onclick="setAltType('print')" id="btn-print">🖼️ Print</button>
+      </div>
+
+      <div id="alt-input-texto">
+        <textarea id="altTexto" rows="8" placeholder="Cole as alterações do cliente aqui — WhatsApp, email, texto corrido, qualquer formato...&#10;&#10;Ex: 'muda o título para: Conquiste Mais Clientes'&#10;Ex: 'o botão precisa ser: Falar com Especialista'"></textarea>
+      </div>
+
+      <div id="alt-input-pdf" class="hidden">
+        <div class="drop-zone" id="pdfDropZone" onclick="document.getElementById('pdfInput').click()">
+          <div class="drop-icon" id="pdfIcon">📄</div>
+          <div class="drop-title" id="pdfTitle">Arraste o PDF aqui</div>
+          <div class="drop-sub" id="pdfSub">Documento de alterações do cliente (.pdf)</div>
+        </div>
+        <input type="file" id="pdfInput" accept=".pdf" style="display:none" onchange="handlePdfFile(this.files[0])">
+      </div>
+
+      <div id="alt-input-print" class="hidden">
+        <div class="drop-zone" id="printDropZone" onclick="document.getElementById('printInput').click()">
+          <div class="drop-icon" id="printIcon">🖼️</div>
+          <div class="drop-title" id="printTitle">Arraste o print aqui</div>
+          <div class="drop-sub" id="printSub">Screenshot da página com os erros (.png, .jpg)</div>
+        </div>
+        <input type="file" id="printInput" accept="image/*" style="display:none" onchange="handlePrintFile(this.files[0])">
+        <div id="printPreview" class="hidden" style="margin-top:12px;border-radius:8px;overflow:hidden;border:1px solid var(--border2)">
+          <img id="printImg" style="width:100%;display:block" />
+        </div>
+        <div style="margin-top:12px">
+          <label>Descrição adicional (opcional)</label>
+          <textarea id="printDesc" rows="3" placeholder="Explique o que está errado no print (opcional — a IA já interpreta a imagem automaticamente)"></textarea>
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -891,14 +960,25 @@ textarea { resize:vertical; line-height:1.6; }
   <div id="alt-phase3" class="hidden">
     <div class="result-box" style="background:linear-gradient(135deg,rgba(245,166,35,0.06),rgba(245,166,35,0.02));border-color:rgba(245,166,35,0.2)">
       <div class="result-emoji">✅</div>
-      <div class="result-title">Alterações aplicadas!</div>
+      <div class="result-title">Alterações processadas!</div>
       <div class="result-sub" id="altResultSub"></div>
       <button class="btn-download" onclick="baixarAlterado()">⬇ Baixar JSON alterado</button>
     </div>
 
-    <div class="card" style="margin-top:18px">
-      <div class="card-title" style="margin-bottom:14px">Resumo das alterações</div>
+    <div class="card" style="margin-top:18px" id="altResumoCard">
+      <div class="card-title" style="margin-bottom:14px">✅ Aplicado automaticamente</div>
       <div id="altResumo"></div>
+    </div>
+
+    <div class="card" id="altPendenciasCard" style="margin-top:14px;border-color:rgba(249,64,81,0.2);display:none">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <span style="font-size:18px">⚠️</span>
+        <div>
+          <div class="card-title" style="color:var(--red)">Pendências manuais</div>
+          <div style="font-size:12px;color:var(--t3);margin-top:2px">Estas alterações precisam ser feitas manualmente no Elementor</div>
+        </div>
+      </div>
+      <div id="altPendencias"></div>
     </div>
 
     <div style="text-align:center;margin-top:14px">
@@ -955,6 +1035,85 @@ function handleAltFile(file) {
   };
   r.readAsText(file);
 }
+
+
+// === TIPOS DE ENTRADA - ALTERAÇÕES ===
+let altType = 'texto';
+let pdfBase64 = null;
+let printBase64 = null;
+let fixPrintBase64 = null;
+
+function setAltType(type) {
+  altType = type;
+  ['texto','pdf','print'].forEach(t => {
+    document.getElementById('alt-input-' + t).classList.toggle('hidden', t !== type);
+    document.getElementById('btn-' + t).classList.toggle('active', t === type);
+  });
+}
+
+function setFixType(type) {
+  ['texto','print'].forEach(t => {
+    document.getElementById('fix-input-' + t).classList.toggle('hidden', t !== type);
+    document.getElementById('fixbtn-' + t).classList.toggle('active', t === type);
+  });
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result.split(',')[1]);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+async function handlePdfFile(file) {
+  if (!file.name.endsWith('.pdf')) { showErr('alertAlt', 'Selecione um arquivo .pdf'); return; }
+  pdfBase64 = await fileToBase64(file);
+  const dz = document.getElementById('pdfDropZone');
+  dz.classList.add('loaded');
+  document.getElementById('pdfIcon').textContent = '✅';
+  document.getElementById('pdfTitle').innerHTML = '<span style="color:var(--g)">' + file.name + '</span>';
+  document.getElementById('pdfSub').textContent = 'PDF carregado';
+}
+
+async function handlePrintFile(file) {
+  printBase64 = await fileToBase64(file);
+  const dz = document.getElementById('printDropZone');
+  dz.classList.add('loaded');
+  document.getElementById('printIcon').textContent = '✅';
+  document.getElementById('printTitle').innerHTML = '<span style="color:var(--g)">Print carregado</span>';
+  document.getElementById('printSub').textContent = file.name;
+  const preview = document.getElementById('printPreview');
+  preview.classList.remove('hidden');
+  document.getElementById('printImg').src = URL.createObjectURL(file);
+}
+
+async function handleFixPrint(file) {
+  fixPrintBase64 = await fileToBase64(file);
+  const dz = document.getElementById('fixPrintZone');
+  dz.classList.add('loaded');
+  document.getElementById('fixPrintIcon').textContent = '✅';
+  document.getElementById('fixPrintTitle').innerHTML = '<span style="color:var(--g)">Print carregado</span>';
+  const preview = document.getElementById('fixPrintPreview');
+  preview.classList.remove('hidden');
+  document.getElementById('fixPrintImg').src = URL.createObjectURL(file);
+}
+
+// Setup drop para PDF e prints
+function setupDropImg(zoneId, handler) {
+  const dz = document.getElementById(zoneId);
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+  dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('over'); if (e.dataTransfer.files[0]) handler(e.dataTransfer.files[0]); });
+}
+
+setTimeout(() => {
+  setupDropImg('pdfDropZone', handlePdfFile);
+  setupDropImg('printDropZone', handlePrintFile);
+  setupDropImg('fixPrintZone', handleFixPrint);
+}, 100);
 
 // === SWITCH TAB ===
 function switchTab(tab) {
@@ -1034,9 +1193,11 @@ async function corrigir() {
   const btn = document.querySelector('#tab-corrigir .btn-primary');
   btn.disabled = true; btn.textContent = 'Gerando correções...';
   try {
+    const imgB64fix = fixPrintBase64 || null;
+    const descFix = document.getElementById(document.getElementById('fix-input-print') && !document.getElementById('fix-input-print').classList.contains('hidden') ? 'fixPrintDesc' : 'errorDesc').value.trim() || errorDesc;
     const res = await fetch('/fix', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ errorDescription:errorDesc, briefing, clientName:cliente, textMap:textMap||null, jsonData:adaptedJson||jsonData||null })
+      body:JSON.stringify({ errorDescription:descFix||errorDesc, briefing, clientName:cliente, textMap:textMap||null, jsonData:adaptedJson||jsonData||null, imageBase64:imgB64fix })
     });
     const data = await res.json();
     if (!data.success) throw new Error(data.error);
@@ -1067,8 +1228,23 @@ async function corrigir() {
 // === ALTERAÇÕES ===
 async function aplicarAlteracoes() {
   if (!altJsonData) { showErr('alertAlt', 'Faça upload do JSON da página primeiro.'); return; }
-  const texto = document.getElementById('altTexto').value.trim();
-  if (!texto) { showErr('alertAlt', 'Cole as alterações do cliente primeiro.'); return; }
+
+  let texto = '';
+  let pdfB64 = null;
+  let imgB64 = null;
+
+  if (altType === 'texto') {
+    texto = document.getElementById('altTexto').value.trim();
+    if (!texto) { showErr('alertAlt', 'Cole as alterações do cliente.'); return; }
+  } else if (altType === 'pdf') {
+    if (!pdfBase64) { showErr('alertAlt', 'Faça upload do PDF primeiro.'); return; }
+    pdfB64 = pdfBase64;
+  } else if (altType === 'print') {
+    if (!printBase64) { showErr('alertAlt', 'Faça upload do print primeiro.'); return; }
+    imgB64 = printBase64;
+    texto = document.getElementById('printDesc').value.trim();
+  }
+
   const clientName = document.getElementById('altClientName').value.trim();
   document.getElementById('alt-phase1').classList.add('hidden');
   document.getElementById('alt-phase2').classList.remove('hidden');
@@ -1083,7 +1259,7 @@ async function aplicarAlteracoes() {
   try {
     const res = await fetch('/alteracoes', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ alteracoesTexto:texto, jsonData:altJsonData, clientName })
+      body:JSON.stringify({ alteracoesTexto:texto||null, pdfBase64:pdfB64||null, imageBase64:imgB64||null, jsonData:altJsonData, clientName })
     });
     const data = await res.json();
     clearInterval(interval);
@@ -1165,6 +1341,8 @@ function reiniciar() {
 function reiniciarAlt() {
   altJsonData=null; altAdaptedJson=null;
   ['alt-phase1','alt-phase2','alt-phase3'].forEach((p,i) => document.getElementById(p).classList.toggle('hidden', i!==0));
+  const pc = document.getElementById('altPendenciasCard');
+  if (pc) pc.style.display = 'none';
   const dz = document.getElementById('altDropZone');
   dz.classList.remove('loaded');
   document.getElementById('altDropIcon').textContent = '📄';
